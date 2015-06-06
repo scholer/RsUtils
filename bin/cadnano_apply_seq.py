@@ -27,6 +27,9 @@ Example usage:
     $> cadnano_apply_seq scafs.yaml CircFoldback_07-braced.json
     $> cadnano_apply_seq -y --export stap --export scaf scafs.yaml CircFoldback_07-braced.json
     $> cadnano_apply_seq -y --export export_oligos.yaml scafs.yaml CircFoldback_07-braced.json
+    # Export oligos specified by export_oligos.yaml, applying sequences from scafs.yaml, to all
+    # cadnano files matching the glob pattern *.json (verbose=1, overwriting existing files if needed):
+    $> cadnano_apply_seq --export export_oligos.yaml -y -v scafs.yaml *.json
 
 """
 
@@ -125,6 +128,10 @@ def process_args(argns=None):
     return args
 
 def load_criteria_list(filepath):
+    """
+    The criteria list specifies which oligos to export, and can be specified either as json or yaml.
+    This will load data.
+    """
     try:
         ext = os.path.splitext(filepath)[1]
     except IndexError:
@@ -459,4 +466,3 @@ def main(argv=None):
 
 if __name__ == '__main__':
     main()
-

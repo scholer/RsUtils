@@ -23,10 +23,19 @@
 Grep IDT espec csv files for sequence.
 
 Example usage:
+
     # Print oligos with 5' modification (/5Phos/):
-    > espec_grep -c seq_with_mods 5Pho *.csv --printfmt "{row[Sales Order]}
+    $> espec_grep -c seq_with_mods 5Pho *.csv --printfmt "{row[Sales Order]}
         {row[Sequence Name]} ({row[Bases]}) {row[seq_with_mods]}"
 
+    # Find oligos with "5Phos" mod and "rss" in sequence name, printing all matching oligos as
+    #   <sales order> <Sequence Name> <Bases> <Sequence with mods> <Mods and services>
+    # searching all *.csv files and using the csv module to parse the csv files:
+    # (using the csv module is not compatible with the simple line-based --regex option,
+    # but it is currently needed for proper, quoted, parsing if any fields contain a comma)
+    $> espec_grep -c seq_with_mods 5Phos --csv --criteria "Sequence Name" rss
+        --printfmt "{row[Sales Order]} {row[Sequence Name]} ({row[Bases]}) {row[seq_with_mods]}
+        {row[Modifications and Services]}" *.csv
 
 """
 
@@ -177,7 +186,8 @@ def files_match_gen(files, line_regexp, criteria, match_style="fixed-strings", s
                     if criteria:
                         # Only parse line as comma-separated-values if neeeded...
                         if headers is None:
-                            ## TODO: simply doing line.split(sep) causes issues if e.g. Sequence Name includes the sep.
+                            ## simply doing line.split(sep) causes issues if e.g. Sequence Name includes the sep.
+                            ## Using the csv module is currently required to handle these special cases...
                             headers = [header.strip('\t "') for header in line.split(sep)]
                             continue    # We are not matching header lines
                         row = {header: cell.strip('\t "') for header, cell in zip(headers, line.split(sep))}
@@ -229,9 +239,8 @@ def main(argv=None):
     "Tm (50mM NaCl) C","Modifications and Services","Final OD","nmoles","Print Date","Well Position"
 
     """
-    print(sys.argv)
     argsns, parser = parse_args(argv)
-    if argsns.verbose and argsns.verbose > 0:
+    if argsns.verbose and argsns.verbose > 2:
         print("sys.argv:", sys.argv)
         print("argsns:", argsns)
 
