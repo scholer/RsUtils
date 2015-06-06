@@ -42,6 +42,9 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *,cover
+bin/example_files/
+test/testfiles/
+bin/notes/
 
 # Translations
 *.mo
