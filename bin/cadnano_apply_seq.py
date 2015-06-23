@@ -165,9 +165,9 @@ def load_seq(args):
             criteria: {
                 st_type: <"scaf" or "stap">,
                 length: <length>,
-                5pvhnum: <vhelix number>,
+                vhnumber: <vhelix number>,   # or "5pvhnumber" - was previously "5pvhnum"
                 5pvhcoord: (vhcoord tuple),
-                5pbaseidx: <base index>,
+                idx5Prime: <base index>,    # previously "5pbaseidx"
                 (same for 3p),
                 }
             offset: <integer, positive or negative>,
@@ -337,7 +337,7 @@ def print_oligo_criteria_match_report(oligos, criteria, desc=None):
     """ Print standard criteria match report. """
     print("\n{} oligos matching criteria set {}:".format(len(oligos), desc))
     #print("Oligos matching criteria set:", desc)
-    if VERBOSE > 1:
+    if VERBOSE > 1 or not oligos:
         print(yaml.dump({"criteria": [criteria]}, default_flow_style=False).strip("\n"))
         print("The matching oligos are:")
         print("\n".join(" - {}".format(oligo) for oligo in oligos))
@@ -357,7 +357,9 @@ def apply_sequences(part, seqs, offset=None):
         if seq_offset:
             seq = (seq*3)[L+seq_offset:L*2+seq_offset]
         oligos = get_matching_oligos(part, seq_spec["criteria"])
-        if VERBOSE > 1:
+        if VERBOSE > 1 or not oligos:
+            if not oligos:
+                print("\n\nNOTICE! The following oligo criteria (selection for apply) did not match any oligos:")
             print_oligo_criteria_match_report(oligos, seq_spec["criteria"],
                                               desc="for application of sequence #{}".format(seq_i))
         for oligo in oligos:
