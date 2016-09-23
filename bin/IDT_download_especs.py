@@ -23,8 +23,9 @@
 
 """
 
+USAGE:
 
-1. Get the order history html:
+1. Get the order history html text:
 	Go to IDT "order history" page, select 500 under "records per page",
 	right-click somewhere in the table and select "Inspect element" (Chrome),
 	right-click the <table> tag (or any parent) and select copy,
@@ -35,7 +36,7 @@
 2. Get login cookies:
 	Open Chrome's advanced settings, go to manage cookies, search for idtdna,
 	under the "www.idtdna.com" you will find some cookies,
-	copy the cookies to a yaml file. It should look like the following:
+	copy the cookies to a yaml file. The yaml file should look like the following:
 
 ASP.NET_SessionId: (insert your value here)
 IDTAUTH: (insert your value here)
@@ -58,6 +59,12 @@ LoginName: (insert your value here)
 
 
 See also: espec_grep
+
+
+NOTE:
+* The IDT website was changed significantly in August 2015. Will require an update of the code.
+    (actually, just the regexs...)
+
 
 
 
