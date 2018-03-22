@@ -105,17 +105,30 @@ def expand_files(files):
 
 def read_seqs(file):
     """
-    name: 'strand1'
-contents: ''
-concentration: '1'
-scale: '-6'
+    Return list of "batches", i.e. a list of lists of dicts, with:
+        [
+         [
+          {'name': seq_name, 'contents': sequence, 'concentration', (number), 'scale': (a negative number indicating the exponent)},
+          ... (other sequences for batch#1)
+         ],
+         [
+         ... (sequences for batch#2)
+         ]
+        ]
+    Each dict item has keys:
+        name: 'strand1'     # strand/sequence name
+        contents: 'ATGC'    # sequence
+        concentration: '1'  # e.g. 1 uM.
+        scale: '-6'         # -6 indicates "uM", -9 indicates "nM", -3 indicates "mM", etc.
     File format is:
-    # name      seq/contents [concentration]    [scale]
-    batch1seq1  TCAAAAGCGCTTTTGCGCTTTTGT    100  -9
-    batch1seq2  ACAAAAGCGCAAAAGCGCTTTTGA
+        # name      seq/contents [concentration]    [scale]
+        batch1seq1  TCAAAAGCGCTTTTGCGCTTTTGT    100  -9
+        batch1seq2  ACAAAAGCGCAAAAGCGCTTTTGA
+    
+        batch2seq1 ...
+        batch2seq2 ...
 
-    batch2seq1 ...
-    batch2seq2 ...
+    Notice the newline used to separate batches.
     """
     with open(file) as fp:
         content = fp.read()
@@ -155,8 +168,8 @@ na_salt: '1.0'
 mg_salt: '0.0'
 dotplot_target: '1'
 predefined_complexes: '' # Text area input
-filter_min_fraction_of_max: ''
-filter_max_number: ''
+filter_min_fraction_of_max: '' # Only display complexes with this fraction (rel to max conc, default 0.001)
+filter_max_number: '' # Number of complexes (bars) to show, default=10
 email_address: ''
 """)
     return partition_job, partition_sequence
@@ -164,8 +177,21 @@ email_address: ''
 
 def gen_data(job_param, sequences_params):
     """
-    job_params is a dict with partition_job parameters
-    sequences_params is a list of sequence parameters.
+    Generate the data structure submitted to the NuPack server.
+    The data structure is a little weird, e.g. all "job parameters" are keyed as
+        'partition_job[mg_salt]': 0.01
+    while sequence parameters are indexed as:
+        'partition_sequence[idx][key]: value' e.g. 'partition_sequence[0][name]: seq1name'
+    Arguments:
+    :job_params: is a dict with partition_job parameters e.g. 
+        'temperature' and 'mg_salt'.
+    :sequences_params: is a list of sequence parameters, which is the 
+        same as a single sequence "batch" returned by read_seqs.
+        The sequences_params data structure is a list of dicts as:
+        [
+            {'name': 'seq1name', 'contents': 'ATTTCAA', 'concentration': 10, 'scale': '-6'},  # 10 uM
+            ...
+        ]
 
     See notes/nupack.org_form_parsing.py for notes on the form inputs
     """
